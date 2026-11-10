@@ -39,20 +39,16 @@ jobs:
         run: npm test
         env:
           CI: true
-      - name: Upload coverage to Codecov
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v7
-        with:
-          use_oidc: true
-
       - name: coverage
         run: npm run coverage
         env:
           CI: true
 
       - name: Upload coverage reports to Codecov
+        if: matrix.node-version == '22.x'
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage/lcov.info
           fail_ci_if_error: true
           verbose: true
