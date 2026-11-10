@@ -6,24 +6,26 @@
     "pin": "897-23-872"
   },
 
-  "accessories": [
+  "platforms": [
     {
-      "accessory": "HTTP-SWITCH",
-      "name": "Test Switch",
-
-      "onUrl": {
-        "url": "http://localhost:8085/on"
-      },
-      "offUrl": "http://localhost:8085/off",
-
-      "statusUrl": {
-        "url": "http://localhost:8085/get",
-        "method": "GET"
-      },
-
-      "pullInterval": 5000,
-
-      "debug": true
+      "platform": "HTTP-SWITCH",
+      "name": "Test Switch Platform",
+      "switches": [
+        {
+          "name": "Test Switch",
+          "switchType": "stateful",
+          "onUrl": {
+            "url": "http://localhost:8085/on"
+          },
+          "offUrl": "http://localhost:8085/off",
+          "statusUrl": {
+            "url": "http://localhost:8085/get",
+            "method": "GET"
+          },
+          "pullInterval": 5000,
+          "debug": true
+        }
+      ]
     }
   ]
 }

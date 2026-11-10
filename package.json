@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "test": "node --test test/*.test.js",
-    "coverage": "node --test --experimental-test-coverage test/*.test.js"
+    "coverage": "c8 --reporter=text --reporter=text-summary --reporter=lcov node --test test/*.test.js"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "homebridge-http-base": "~2.1.13"
   },
   "devDependencies": {
+    "c8": "^12.0.0",
     "homebridge": "^2.0.0"
   }
 }

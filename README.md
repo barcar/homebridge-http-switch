@@ -2,9 +2,10 @@
 
 [![npm](https://img.shields.io/npm/v/homebridge-http-switch?style=for-the-badge)](https://www.npmjs.com/package/homebridge-http-switch)
 [![npm](https://img.shields.io/npm/dt/homebridge-http-switch?style=for-the-badge)](https://www.npmjs.com/package/homebridge-http-switch)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Supereg/homebridge-http-switch/Node-CI?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/actions?query=workflow%3A%22Node-CI%22)
-[![GitHub issues](https://img.shields.io/github/issues/Supereg/homebridge-http-switch?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/issues)
-[![GitHub pull requests](https://img.shields.io/github/issues-pr/Supereg/homebridge-http-switch?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/pulls)
+[![codecov](https://codecov.io/gh/barcar/homebridge-http-switch/badge.svg)](https://codecov.io/gh/barcar/homebridge-http-switch)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/barcar/homebridge-http-switch/nodejs.yml?branch=verified-plugin-prep&style=for-the-badge)](https://github.com/barcar/homebridge-http-switch/actions/workflows/nodejs.yml)
+[![GitHub issues](https://img.shields.io/github/issues/barcar/homebridge-http-switch?style=for-the-badge)](https://github.com/barcar/homebridge-http-switch/issues)
+[![GitHub pull requests](https://img.shields.io/github/issues-pr/barcar/homebridge-http-switch?style=for-the-badge)](https://github.com/barcar/homebridge-http-switch/pulls)
 
 
 `homebridge-http-switch` is a [Homebridge](https://github.com/nfarina/homebridge) plugin with which you can configure 
@@ -145,6 +146,8 @@ executing multiple urls. The following are available:
 Below are two example configurations. One is using simple string urls and the other is using simple urlObjects.  
 Both configs can be used for a basic plugin configuration.
 
+### Legacy accessory-based configuration
+
 ```json
 {
     "accessories": [
@@ -189,6 +192,49 @@ Both configs can be used for a basic plugin configuration.
     ]
 }
 ```
+
+### Platform-style configuration (primary verification path)
+
+This plugin is now being developed around the platform model as the primary Homebridge configuration path. The platform layout is the preferred format for verification and future compatibility work, while the legacy accessory format remains supported as a compatibility fallback for existing users.
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "HTTP-SWITCH",
+      "name": "HTTP Switch",
+      "switchType": "stateful",
+      "onUrl": "http://localhost/api/switchOn",
+      "offUrl": "http://localhost/api/switchOff",
+      "statusUrl": "http://localhost/api/switchStatus"
+    }
+  ]
+}
+```
+
+A multi-switch platform configuration is also supported via the `switches` array:
+
+```json
+{
+  "platforms": [
+    {
+      "platform": "HTTP-SWITCH",
+      "name": "HTTP Switch Platform",
+      "switches": [
+        {
+          "name": "Desk Lamp",
+          "switchType": "stateful",
+          "onUrl": "http://localhost/api/lamp/on",
+          "offUrl": "http://localhost/api/lamp/off",
+          "statusUrl": "http://localhost/api/lamp/status"
+        }
+      ]
+    }
+  ]
+}
+```
+
+Legacy accessory-based installs remain supported for backward compatibility, but the platform model is now the target design for verification and upstream alignment.
 
 #### UrlObject
 

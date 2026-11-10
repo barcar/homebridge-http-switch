@@ -20,6 +20,43 @@ module.exports = function (homebridge) {
     api = homebridge;
 
     homebridge.registerAccessory("homebridge-http-switch", "HTTP-SWITCH", HTTP_SWITCH);
+
+    if (typeof homebridge.registerPlatform === "function") {
+        homebridge.registerPlatform("homebridge-http-switch", "HTTP-SWITCH", HTTP_SWITCH_PLATFORM);
+    }
+};
+
+function HTTP_SWITCH_PLATFORM(log, config) {
+    this.log = log;
+    this.config = config || {};
+}
+
+HTTP_SWITCH_PLATFORM.prototype.accessories = function (callback) {
+    const accessories = [];
+    const sourceDefinitions = Array.isArray(this.config.switches)
+        ? this.config.switches
+        : Array.isArray(this.config.accessories)
+            ? this.config.accessories
+            : [this.config];
+
+    sourceDefinitions.forEach((accessoryConfig) => {
+        if (!accessoryConfig || typeof accessoryConfig !== "object")
+            return;
+
+        const candidate = Object.assign({}, accessoryConfig);
+        const name = candidate.name || this.config.name || "HTTP Switch";
+        candidate.name = name;
+
+        if (!candidate.accessory)
+            candidate.accessory = "HTTP-SWITCH";
+
+        accessories.push(new HTTP_SWITCH(this.log, candidate));
+    });
+
+    if (typeof callback === "function")
+        callback(accessories);
+
+    return accessories;
 };
 
 const SwitchType = Object.freeze({
@@ -32,12 +69,25 @@ const SwitchType = Object.freeze({
 
 function HTTP_SWITCH(log, config) {
     this.log = log;
+    this.warn = function (message) {
+        if (typeof this.log?.warn === "function") {
+            this.log.warn(message);
+            return;
+        }
+
+        if (typeof this.log === "function") {
+            this.log(message);
+            return;
+        }
+
+        console.warn(message);
+    }.bind(this);
     this.name = config.name;
     this.debug = config.debug || false;
 
     this.switchType = utils.enumValueOf(SwitchType, config.switchType, SwitchType.STATEFUL);
     if (!this.switchType) {
-        this.log.warn(`'${this.switchType}' is a invalid switchType! Aborting...`);
+        this.warn(`'${this.switchType}' is a invalid switchType! Aborting...`);
         return;
     }
 
@@ -60,15 +110,21 @@ function HTTP_SWITCH(log, config) {
     if (this.switchType === SwitchType.STATEFUL) {
         this.statusPattern = /1/;
         if (config.statusPattern) {
-            if (typeof config.statusPattern === "string")
-                this.statusPattern = new RegExp(config.statusPattern);
-            else
-                this.log.warn("Property 'statusPattern' was given in an unsupported type. Using default one!");
+            if (typeof config.statusPattern === "string") {
+                try {
+                    this.statusPattern = new RegExp(config.statusPattern);
+                } catch (error) {
+                    this.warn(`Property 'statusPattern' is invalid ('${config.statusPattern}'). Using default one!`);
+                }
+            }
+            else {
+                this.warn("Property 'statusPattern' was given in an unsupported type. Using default one!");
+            }
         }
 
         this.statusCache = new Cache(config.statusCache, 0);
         if (config.statusCache && typeof config.statusCache !== "number")
-            this.log.warn("Property 'statusCache' was given in an unsupported type. Using default one!");
+            this.warn("Property 'statusCache' was given in an unsupported type. Using default one!");
     }
 
     /** @namespace config.multipleUrlExecutionStrategy */
@@ -76,12 +132,12 @@ function HTTP_SWITCH(log, config) {
         const result = http.setMultipleUrlExecutionStrategy(config.multipleUrlExecutionStrategy);
 
         if (!result)
-            this.log.warn("'multipleUrlExecutionStrategy' has an invalid value (" + config.multipleUrlExecutionStrategy + "). Continuing with defaults!");
+            this.warn("'multipleUrlExecutionStrategy' has an invalid value (" + config.multipleUrlExecutionStrategy + "). Continuing with defaults!");
     }
 
     const success = this.parseUrls(config); // parsing 'onUrl', 'offUrl', 'statusUrl'
     if (!success) {
-        this.log.warn("Aborting...");
+        this.warn("Aborting...");
         return;
     }
 
@@ -247,17 +303,17 @@ HTTP_SWITCH.prototype = {
                         ? [configParser.parseUrlProperty(config.onUrl)]
                         : configParser.parseMultipleUrlProperty(config.onUrl);
                 } catch (error) {
-                    this.log.warn("Error occurred while parsing 'onUrl': " + error.message);
+                    this.warn("Error occurred while parsing 'onUrl': " + error.message);
                     return false;
                 }
             }
             else {
-                this.log.warn(`Property 'onUrl' is required when using switchType '${this.switchType}'`);
+                this.warn(`Property 'onUrl' is required when using switchType '${this.switchType}'`);
                 return false;
             }
         }
         else if (config.onUrl)
-            this.log.warn(`Property 'onUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
+            this.warn(`Property 'onUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
 
         /** @namespace config.offUrl */
         if (this.switchType !== SwitchType.STATELESS) {
@@ -267,17 +323,17 @@ HTTP_SWITCH.prototype = {
                         ? [configParser.parseUrlProperty(config.offUrl)]
                         : configParser.parseMultipleUrlProperty(config.offUrl);
                 } catch (error) {
-                    this.log.warn("Error occurred while parsing 'offUrl': " + error.message);
+                    this.warn("Error occurred while parsing 'offUrl': " + error.message);
                     return false;
                 }
             }
             else {
-                this.log.warn(`Property 'offUrl' is required when using switchType '${this.switchType}'`);
+                this.warn(`Property 'offUrl' is required when using switchType '${this.switchType}'`);
                 return false;
             }
         }
         else if (config.offUrl)
-            this.log.warn(`Property 'offUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
+            this.warn(`Property 'offUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
 
         if (this.switchType === SwitchType.STATEFUL) {
             /** @namespace config.statusUrl */
@@ -285,17 +341,17 @@ HTTP_SWITCH.prototype = {
                 try {
                     this.status = configParser.parseUrlProperty(config.statusUrl);
                 } catch (error) {
-                    this.log.warn("Error occurred while parsing 'statusUrl': " + error.message);
+                    this.warn("Error occurred while parsing 'statusUrl': " + error.message);
                     return false;
                 }
             }
             else {
-                this.log.warn(`Property 'statusUrl' is required when using switchType '${this.switchType}'`);
+                this.warn(`Property 'statusUrl' is required when using switchType '${this.switchType}'`);
                 return false;
             }
         }
         else if (config.statusUrl)
-            this.log.warn(`Property 'statusUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
+            this.warn(`Property 'statusUrl' is defined though it is not used with switchType ${this.switchType}. Ignoring it!`);
 
         return true;
     },

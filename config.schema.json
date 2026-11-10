@@ -1,0 +1,132 @@
+{
+  "pluginAlias": "HTTP-SWITCH",
+  "pluginType": "platform",
+  "schemaVersion": 2,
+  "name": "HTTP Switch",
+  "headerDisplay": "HTTP Switch",
+  "footerDisplay": "Create HomeKit switches that trigger HTTP endpoints or read their state via a status URL.",
+  "properties": {
+    "name": {
+      "title": "Name",
+      "type": "string",
+      "required": true,
+      "default": "HTTP Switch"
+    },
+    "switchType": {
+      "title": "Switch Type",
+      "type": "string",
+      "default": "stateful",
+      "oneOf": [
+        { "title": "Stateful", "enum": ["stateful"] },
+        { "title": "Stateless", "enum": ["stateless"] },
+        { "title": "Stateless Reverse", "enum": ["stateless-reverse"] },
+        { "title": "Toggle", "enum": ["toggle"] },
+        { "title": "Toggle Reverse", "enum": ["toggle-reverse"] }
+      ]
+    },
+    "onUrl": {
+      "title": "On URL",
+      "type": "string",
+      "placeholder": "http://device/api/on"
+    },
+    "offUrl": {
+      "title": "Off URL",
+      "type": "string",
+      "placeholder": "http://device/api/off"
+    },
+    "statusUrl": {
+      "title": "Status URL",
+      "type": "string",
+      "placeholder": "http://device/api/status"
+    },
+    "statusPattern": {
+      "title": "Status Pattern",
+      "type": "string",
+      "placeholder": "1"
+    },
+    "statusCache": {
+      "title": "Status Cache (ms)",
+      "type": "integer",
+      "default": 0
+    },
+    "timeout": {
+      "title": "Stateless Timeout (ms)",
+      "type": "integer",
+      "default": 1000
+    },
+    "pullInterval": {
+      "title": "Pull Interval (ms)",
+      "type": "integer"
+    },
+    "debug": {
+      "title": "Debug Logging",
+      "type": "boolean",
+      "default": false
+    },
+    "switches": {
+      "title": "Switches",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "switchType": {
+            "title": "Switch Type",
+            "type": "string",
+            "default": "stateful",
+            "oneOf": [
+              { "title": "Stateful", "enum": ["stateful"] },
+              { "title": "Stateless", "enum": ["stateless"] },
+              { "title": "Stateless Reverse", "enum": ["stateless-reverse"] },
+              { "title": "Toggle", "enum": ["toggle"] },
+              { "title": "Toggle Reverse", "enum": ["toggle-reverse"] }
+            ]
+          },
+          "onUrl": {
+            "title": "On URL",
+            "type": "string"
+          },
+          "offUrl": {
+            "title": "Off URL",
+            "type": "string"
+          },
+          "statusUrl": {
+            "title": "Status URL",
+            "type": "string"
+          },
+          "statusPattern": {
+            "title": "Status Pattern",
+            "type": "string"
+          },
+          "statusCache": {
+            "title": "Status Cache (ms)",
+            "type": "integer"
+          },
+          "timeout": {
+            "title": "Stateless Timeout (ms)",
+            "type": "integer"
+          },
+          "pullInterval": {
+            "title": "Pull Interval (ms)",
+            "type": "integer"
+          },
+          "debug": {
+            "title": "Debug Logging",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "onUrl",
+          "offUrl"
+        ]
+      }
+    }
+  },
+  "required": [
+    "name"
+  ]
+}
