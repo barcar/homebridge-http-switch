@@ -7,7 +7,7 @@
     "homebridge-plugin"
   ],
   "scripts": {
-    "test": "echo no test defined"
+    "test": "node test/smoke.js"
   },
   "repository": {
     "type": "git",
