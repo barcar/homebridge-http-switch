@@ -1,42 +1,35 @@
 name: Node-CI
 
-on: [push, pull_request, create]
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  create:
+
+permissions:
+  contents: read
 
 jobs:
   build:
-
+    if: github.event_name != 'create' || (github.repository == 'Supereg/homebridge-http-switch' && startsWith(github.ref, 'refs/tags/v'))
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
 
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [10.x, 12.x, 13.x]
+        node-version: [22.x, 24.x, 26.x]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v6
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - name: npm install
+          cache: npm
+      - name: Install dependencies
         run: npm ci
-        env:
-          CI: true
-      - name: npm build
-        run: npm run build --if-present
-        env:
-          CI: true
-      - name: npm test
+      - name: Run tests
         run: npm test
-        env:
-          CI: true
-      - name: Upload coverage to Codecov
-        if: matrix.node-version == '13.x'
-        uses: codecov/codecov-action@v7
-        with:
-          use_oidc: true
 
   publish-npm:
     if: github.repository == 'Supereg/homebridge-http-switch' && github.event_name == 'create' && startsWith(github.ref, 'refs/tags/v')
@@ -46,8 +39,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 10
           registry-url: https://registry.npmjs.org/
