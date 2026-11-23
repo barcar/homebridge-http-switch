@@ -22,7 +22,7 @@
     "homebridge": "^1.8.0 || ^2.0.0"
   },
   "dependencies": {
-    "homebridge-http-base": "~2.1.13"
+    "homebridge-http-base": "git+https://github.com/barcar/homebridge-http-base.git#update-glob-dependencies"
   },
   "devDependencies": {
     "homebridge": "^2.0.0"
