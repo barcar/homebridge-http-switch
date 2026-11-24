@@ -5,9 +5,10 @@ All notable changes to this project are documented here. This file was backfille
 ## Unreleased
 
 - Homebridge v2 compatibility and validation updates
-- CI modernization and runtime alignment for Node 22 / 24
+- CI modernization and runtime alignment for Node 22 / 24 / 26
 - Coverage reporting added to the test workflow
 - Dependency refresh and project hygiene updates
+- Use the staged homebridge-http-base v3; Digest authentication is no longer supported
 
 ## v0.5.36
 

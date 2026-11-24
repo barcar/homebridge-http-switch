@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/homebridge-http-switch?style=for-the-badge)](https://www.npmjs.com/package/homebridge-http-switch)
 [![npm](https://img.shields.io/npm/dt/homebridge-http-switch?style=for-the-badge)](https://www.npmjs.com/package/homebridge-http-switch)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/Supereg/homebridge-http-switch/Node-CI?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/actions?query=workflow%3A%22Node-CI%22)
+[![Node-CI](https://github.com/barcar/homebridge-http-switch/actions/workflows/nodejs.yml/badge.svg?branch=master)](https://github.com/barcar/homebridge-http-switch/actions/workflows/nodejs.yml)
 [![GitHub issues](https://img.shields.io/github/issues/Supereg/homebridge-http-switch?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/issues)
 [![GitHub pull requests](https://img.shields.io/github/issues-pr/Supereg/homebridge-http-switch?style=for-the-badge)](https://github.com/Supereg/homebridge-http-switch/pulls)
 
@@ -118,9 +118,8 @@ The object can contain the following properties:
     * `password` \<string\> **required**
     * `sendImmediately` \<boolean\> **optional** \(Default: **true**\): When set to **true** the plugin will send the 
         credentials immediately to the http server. This is best practice for basic authentication.  
-        When set to **false** the plugin will send the proper authentication header after receiving an 401 error code 
-        (unauthenticated). The response must include a proper `WWW-Authenticate` header.  
-        Digest authentication requires this property to be set to **false**!
+        When set to **false** the plugin sends Basic credentials after receiving a 401 response with a Basic
+        `WWW-Authenticate` challenge. Digest authentication is not supported.
 - `httpMethod` _**deprecated**_ \<string\> **optional**: If defined it sets the http method for `onUrl` and `offUrl`. 
 This property is deprecated and only present for backwards compatibility. It is recommended to use an 
 [[urlObject](#urlobject)] to set the http method per url.
@@ -206,9 +205,8 @@ object. When defined the object can contain the following properties:
     * `password` \<string\> **required**
     * `sendImmediately` \<boolean\> **optional** \(Default: **true**\): When set to **true** the plugin will send the 
             credentials immediately to the http server. This is best practice for basic authentication.  
-            When set to **false** the plugin will send the proper authentication header after receiving an 401 error code 
-            (unauthenticated). The response must include a proper `WWW-Authenticate` header.  
-            Digest authentication requires this property to be set to **false**!
+            When set to **false** the plugin sends Basic credentials after receiving a 401 response with a Basic
+            `WWW-Authenticate` challenge. Digest authentication is not supported.
 * `headers` \<object\> **optional**: Using this object you can define any http headers which are sent with the http 
 request. The object must contain only string key value pairs.  
 * `requestTimeout` \<number\> **optional** \(Default: **20000**\): Time in milliseconds specifying timeout (Time to wait

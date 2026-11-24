@@ -1,5 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const http = require('node:http');
 const base = require('homebridge-http-base');
 
 function createMockHomebridge() {
@@ -155,4 +156,47 @@ test('stateful switch resolves statusUrl values against the configured pattern',
       }
     });
   });
+
+});
+
+test('stateful switch uses base v3 for challenged Basic authentication and HTTP errors', async (t) => {
+  const requests = [];
+  const server = http.createServer((req, res) => {
+    requests.push({ url: req.url, authorization: req.headers.authorization });
+    if (req.headers.authorization !== 'Basic dXNlcjpwYXNz') {
+      res.writeHead(401, { 'WWW-Authenticate': 'Basic realm="switch"' });
+      res.end();
+    } else if (req.url === '/off') {
+      res.writeHead(500);
+      res.end('failed');
+    } else {
+      res.end(req.url === '/status' ? '1' : 'ok');
+    }
+  });
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve())));
+
+  const url = `http://127.0.0.1:${server.address().port}`;
+  const accessory = buildAccessory({
+    name: 'HTTP Switch',
+    onUrl: `${url}/on`,
+    offUrl: `${url}/off`,
+    statusUrl: `${url}/status`,
+    auth: { username: 'user', password: 'pass', sendImmediately: false },
+  });
+
+  const status = await new Promise((resolve, reject) => {
+    accessory.getStatus((error, value) => error ? reject(error) : resolve(value));
+  });
+  assert.equal(status, true);
+  await new Promise((resolve, reject) => {
+    accessory.setStatus(true, (error) => error ? reject(error) : resolve());
+  });
+  await assert.rejects(new Promise((resolve, reject) => {
+    accessory.setStatus(false, (error) => error ? reject(error) : resolve());
+  }), /Some or every request returned with an error/);
+  assert.deepEqual(requests, ['/status', '/on', '/off'].flatMap((path) => [
+    { url: path, authorization: undefined },
+    { url: path, authorization: 'Basic dXNlcjpwYXNz' },
+  ]));
 });

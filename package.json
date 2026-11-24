@@ -7,8 +7,8 @@
     "homebridge-plugin"
   ],
   "scripts": {
-    "test": "node --test test/*.test.js",
-    "coverage": "node --test --experimental-test-coverage test/*.test.js"
+    "test": "node --test test/*.test.js test/smoke.js",
+    "coverage": "node --test --experimental-test-coverage test/*.test.js test/smoke.js"
   },
   "repository": {
     "type": "git",
@@ -22,7 +22,7 @@
     "homebridge": "^1.8.0 || ^2.0.0"
   },
   "dependencies": {
-    "homebridge-http-base": "git+https://github.com/barcar/homebridge-http-base.git#update-glob-dependencies"
+    "homebridge-http-base": "git+https://github.com/barcar/homebridge-http-base.git#4a65d89dae49727e0bf3d1dde6675dd4437dcd6b"
   },
   "devDependencies": {
     "homebridge": "^2.0.0"
