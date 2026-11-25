@@ -104,7 +104,7 @@ test('toggle switch remembers the last successful state', async (t) => {
     accessory.setStatus(true, (err) => {
       try {
         assert.equal(err, undefined);
-        assert.equal(accessory.toggleSwitchState, true);
+        assert.equal(accessory.homebridgeService.getCharacteristic('On').value, true);
         resolve();
       } catch (error) {
         reject(error);

@@ -46,13 +46,6 @@ function HTTP_SWITCH(log, config) {
         this.timeout = 1000;
     }
 
-    if (this.switchType === SwitchType.TOGGLE) {
-        this.toggleSwitchState = false;
-    }
-    else if (this.switchType === SwitchType.TOGGLE_REVERSE) {
-        this.toggleSwitchState = true;
-    }
-
     if (config.serialNumber !== undefined && typeof config.serialNumber === "string") {
         this.serialNumber = config.serialNumber;
     }
@@ -137,9 +130,8 @@ function HTTP_SWITCH(log, config) {
         .on("get", this.getStatus.bind(this))
         .on("set", this.setStatus.bind(this));
 
-    if (this.switchType === SwitchType.TOGGLE || this.switchType === SwitchType.TOGGLE_REVERSE) {
-        onCharacteristic.updateValue(this.toggleSwitchState);
-    }
+    if (this.switchType === SwitchType.TOGGLE)
+        onCharacteristic.updateValue(false);
 
     switch (this.switchType) {
         case SwitchType.TOGGLE_REVERSE:
@@ -394,7 +386,7 @@ HTTP_SWITCH.prototype = {
                 break;
             case SwitchType.TOGGLE:
             case SwitchType.TOGGLE_REVERSE:
-                callback(null, this.toggleSwitchState);
+                callback(null, this.homebridgeService.getCharacteristic(Characteristic.On).value);
                 break;
 
             default:
@@ -431,7 +423,7 @@ HTTP_SWITCH.prototype = {
             case SwitchType.TOGGLE_REVERSE:
                 this._makeSetRequest(on, error => {
                     if (!error)
-                        this.toggleSwitchState = on;
+                        this.homebridgeService.getCharacteristic(Characteristic.On).updateValue(on);
 
                     callback(error);
                 });
