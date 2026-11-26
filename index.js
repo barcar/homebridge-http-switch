@@ -130,6 +130,8 @@ function HTTP_SWITCH(log, config) {
         .on("get", this.getStatus.bind(this))
         .on("set", this.setStatus.bind(this));
 
+    if (this.switchType === SwitchType.TOGGLE)
+        onCharacteristic.updateValue(false);
 
     switch (this.switchType) {
         case SwitchType.TOGGLE_REVERSE:
@@ -419,7 +421,12 @@ HTTP_SWITCH.prototype = {
                 break;
             case SwitchType.TOGGLE:
             case SwitchType.TOGGLE_REVERSE:
-                this._makeSetRequest(on, callback);
+                this._makeSetRequest(on, error => {
+                    if (!error)
+                        this.homebridgeService.getCharacteristic(Characteristic.On).updateValue(on);
+
+                    callback(error);
+                });
                 break;
 
             default:
